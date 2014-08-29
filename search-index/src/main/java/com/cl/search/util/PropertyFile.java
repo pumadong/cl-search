@@ -7,20 +7,20 @@ import java.io.InputStream;
 import java.util.Properties;
 
 public class PropertyFile {
-	private static Properties dbProps;
+	private static Properties configProp;
 	
 	private static synchronized void init_prop(){
-		dbProps = new Properties();	
+		configProp = new Properties();	
 		String path = PropertyFile.class.getClassLoader().getResource("").getPath();
 		path = path.replaceAll("%20", " ");
 		InputStream fileinputstream = null;
 		try {
-			fileinputstream = new FileInputStream(path+"conf/config.properties");
+			fileinputstream = new FileInputStream(path+"config.properties");
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		}
 		try {
-			dbProps.load(fileinputstream);
+			configProp.load(fileinputstream);
 		} catch (IOException e) {
 			e.printStackTrace();
 			System.err.println("不能读取配置文件, 请确保config.properties在CLASSPATH指定的路径中!");
@@ -28,9 +28,9 @@ public class PropertyFile {
 	}
 	
 	public static Properties getProps(){
-		if(dbProps==null)
+		if(configProp==null)
 			init_prop();
-		return dbProps;
+		return configProp;
 	}
 	
 	public static void main(String[] args) {

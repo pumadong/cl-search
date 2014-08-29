@@ -3,8 +3,6 @@ package com.cl.search.util;
 import java.sql.Connection;
 import java.sql.Driver;
 import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Enumeration;
 import java.util.Hashtable;
@@ -15,32 +13,32 @@ import java.util.Vector;
 
 /**
  * 数据库连接池
- * 
- * 
+ * 这个类实现的是对多个数据源的连接池，用Vector存储
+ * 在Spring引入之前，这是最常用的数据库连接池实现办法
  */
-public class DBConnectionManager {
+public class DbUtil {
 	
-	private static DBConnectionManager instance; // 唯一实例
+	private static DbUtil instance; // 唯一实例
 	private static int clients; // 连接的客户端
 	private Vector<Driver> drivers = new Vector<Driver>();// 驱动集合
-	private Hashtable<String,DBConnectionPool> pools = new Hashtable<String,DBConnectionPool>();// 数据库连接池
+	private Hashtable<String,DBPool> pools = new Hashtable<String,DBPool>();// 数据库连接池
 	private Properties dbProps;
 	
 	/**
-	 * 单例模式建构私有函数以防止其它对象创建本类实
+	 * 单例模式
 	 */
-	private DBConnectionManager() {
+	private DbUtil() {
 		this.init();
 	}
 
 	/**
-	 * 采用单例模式，返回唯一实例，如果是第一次调用此方法,则创建实例
+	 * 采用单例模式，返回唯一实例，第一次调用时创建
 	 * 
 	 * @return DBConnectionManager 唯一实例
 	 */
-	public static synchronized DBConnectionManager getInstance() {
+	public static synchronized DbUtil getInstance() {
 		if (instance == null) {
-			instance = new DBConnectionManager();
+			instance = new DbUtil();
 		}
 		clients++;
 		return instance;
@@ -51,13 +49,13 @@ public class DBConnectionManager {
 	}
 	
 	/**
-	 * 获得1个可用的空闲连接.如果没有可用连接,且已有连接数小于最大连接数限制,则创建并返回新连接
+	 * 获得可用的空闲连接.如果没有可用连接,且已有连接数小于最大连接数限制,则创建并返回新连接
 	 * 
 	 * @param name: 在属性文件中定义的连接池名字
 	 * @return Connection 可用连接或null
 	 */
 	public Connection getConnection(String name) {
-		DBConnectionPool dbPool = pools.get(name);
+		DBPool dbPool = pools.get(name);
 		if (dbPool != null) {
 			return dbPool.getConnection();
 		}
@@ -65,14 +63,14 @@ public class DBConnectionManager {
 	}
 
 	/**
-	 * 获得1个可用连接.若没有可用连接,且已有连接数小于最大连接数限制, 则创建并返回新连接. 否则,在指定的时间内等待其它线程释放连接.
+	 * 获得可用连接.若没有可用连接,且已有连接数小于最大连接数限制, 则创建并返回新连接. 否则,在指定的时间内等待其它线程释放连接.
 	 * 
 	 * @param name: 连接池名?
 	 * @param time: 以毫秒计的等待时间
 	 * @return Connection 可用连接或null
 	 */
 	public Connection getConnection(String name, long time) {
-		DBConnectionPool dbPool = pools.get(name);
+		DBPool dbPool = pools.get(name);
 		if (dbPool != null) {
 			return dbPool.getConnection(time);
 		}
@@ -80,13 +78,13 @@ public class DBConnectionManager {
 	}
 
 	/**
-	 * 将连接对象返回给由名字指定的连接?
+	 * 将连接对象返回给由名字指定的连接池
 	 * 
 	 * @param name: 在属性文件中定义的连接池名字
 	 * @param con: 连接对象
 	 */
 	public void freeConnection(String name, Connection con) {
-		DBConnectionPool dbPool = pools.get(name);
+		DBPool dbPool = pools.get(name);
 		if (dbPool != null) {
 			dbPool.freeConnection(con);
 		}
@@ -96,12 +94,12 @@ public class DBConnectionManager {
 	 * 关闭所有连接,撤销驱动程序的注册
 	 */
 	public synchronized void release() {
-		// 等待直到最后一个客户程序调用?
+		// 等待直到最后一个客户程序调用结束
 		if (--clients != 0) {
 			return;
 		}
-		Enumeration<DBConnectionPool> allPools = pools.elements();
-		DBConnectionPool pool = null;
+		Enumeration<DBPool> allPools = pools.elements();
+		DBPool pool = null;
 		while (allPools.hasMoreElements()) {
 			pool = allPools.nextElement();
 			pool.release();
@@ -145,14 +143,13 @@ public class DBConnectionManager {
 				drivers.addElement(driver);
 				System.out.println("成功注册JDBC驱动程序:	" + driverClassName);
 			} catch (Exception e) {
-				System.err.println(e.getMessage());
 				System.out.println("无法注册JDBC驱动程序: " + driverClassName + ", 错误: " + e);
 			}
 		}
 	}
 
 	/**
-	 * 根据指定属性创建连接池实?
+	 * 根据指定属性创建连接池实例
 	 * 
 	 * @param props: 连接池属性
 	 */
@@ -180,12 +177,9 @@ public class DBConnectionManager {
 					System.err.println(e.getMessage());
 					System.out.println("错误的最大连接数限制: " + maxconn + " .连接池名: " + poolName);
 					max = 0;
-				}
-				
-				DBConnectionPool pool = new DBConnectionPool(poolName, url, user, password, max);
-				
+				}				
+				DBPool pool = new DBPool(poolName, url, user, password, max);				
 				pools.put(poolName, pool);
-
 				System.out.println("数据库连接池: " + poolName + " 创建完毕!");
 			}
 		}
@@ -193,55 +187,32 @@ public class DBConnectionManager {
 	
 	
 	/**
-	 * 释放商品数据的链接
-	 * @param rst
-	 * @param psmt
-	 * @param conn
-	 */
-	public void closeCommodityConnection(ResultSet rs, PreparedStatement ps,Connection conn) {
-		try {
-			if (rs != null) {
-				rs.close();
-				rs = null;
-			}
-			if (ps != null) {
-				ps.close();
-				ps = null;
-			}
-			this.freeConnection("commodity", conn);
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-	}
-	
-	/**
 	 * 
-	 * @功能：数据库连接池内部类， 此内部类定义了一个连接池.它能够根据要求创建新连接,直到预定的最大连接数为止.
-	 *              在返回连接给客户程序之前,它能够验证连接的有效?
+	 * 数据库连接池内部类， 此内部类定义了一个连接池.它能够根据要求创建新连接,直到预定的最大连接数为止.
+	 * 在返回连接给客户程序之前,它能够验证连接的有效性
 	 * 
 	 */
-	class DBConnectionPool {
+	class DBPool {
 
 		private String poolName; // 连接池名称
 		private String dbConnUrl; // 数据库的JDBC URL
 		private String dbUserName; // 数据库账号或null
 		private String dbPassWord; // 数据库账号密码或null
 		private int maxConn; // 此连接池允许建立的最大连接数
-		private int checkedOut; // 当前连接?
-		private Vector<Connection> freeConnections; // 保存有可用连?
+		private int checkedOut; // 当前连接数
+		private Vector<Connection> freeConnections; // 保存的可用链接
 
-		public DBConnectionPool(){}
+		public DBPool(){}
 		/**
 		 * 创建新的连接池构造函数
 		 * 
-		 * @param poolName: 连接池名?
+		 * @param poolName: 连接池名称
 		 * @param dbConnUrl: 数据库的JDBC URL
-		 * @param dbUserName: 数据库用?null
-		 * @param dbPassWord: 密码  null
+		 * @param dbUserName: 数据库用户名
+		 * @param dbPassWord: 数据库密码
 		 * @param maxConn: 此连接池允许建立的最大连接数
 		 */
-		public DBConnectionPool(String poolName, String dbConnUrl,
-				String dbUserName, String dbPassWord, int maxConn) { //init minConn
+		public DBPool(String poolName, String dbConnUrl, String dbUserName, String dbPassWord, int maxConn) {
 			this.poolName = poolName;
 			this.dbConnUrl = dbConnUrl;
 			this.dbUserName = dbUserName;
@@ -251,8 +222,8 @@ public class DBConnectionManager {
 		}
 
 		/**
-		 * 从连接池获得1个可用连接如果没有空闲的连接且当前连接数小于最大连接数限制,则创建新连接.
-		 * 如原来登记为可用的连接不再有用,则从向量删除?然后递归调用自己以尝试新的可用连接.
+		 * 从连接池获得可用连接,如果没有空闲的连接且当前连接数小于最大连接数限制,则创建新连接.
+		 * 如原来登记为可用的连接不再有用,则从向量删除，然后递归调用自己以尝试新的可用连接.
 		 */
 		@SuppressWarnings("resource")
 		public synchronized Connection getConnection() {
@@ -282,7 +253,7 @@ public class DBConnectionManager {
 		}
 
 		/**
-		 * 从连接池获取可用连接.可以指定客户程序能够等待的最长时间 参见前一个getConnection()方法.
+		 * 从连接池获取可用连接.可以指定客户程序能够等待的最长时间
 		 * 
 		 * @param timeout: 以毫秒计的等待时间限制
 		 */
@@ -306,7 +277,7 @@ public class DBConnectionManager {
 		/**
 		 * 创建新的连接
 		 * 
-		 * @return 返回数据库连jie?
+		 * @return 返回数据库链接
 		 */
 		private Connection newConnection() {
 			Connection conn = null;// 定义连接标量
@@ -317,7 +288,7 @@ public class DBConnectionManager {
 					conn = DriverManager.getConnection(dbConnUrl, dbUserName,
 							dbPassWord);
 				}
-//				System.out.println("连接池" + poolName + "创建?个新的连接");
+				System.out.println("连接池" + poolName + "创建新的连接");
 			} catch (SQLException e) {
 				System.out.println("无法创建下列URL的连接: " + dbConnUrl);
 				return null;

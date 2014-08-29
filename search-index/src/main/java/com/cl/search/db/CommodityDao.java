@@ -6,13 +6,14 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;
 
-import com.cl.search.util.DBConnectionManager;
+import com.cl.search.util.DbUtil;
 
 
 
 public class CommodityDao {
 
-	private DBConnectionManager connManager = DBConnectionManager.getInstance();
+	private DbUtil dbUtil = DbUtil.getInstance();
+	private String commodityPoolName = "commodity";
 	protected Connection conn;
 	
 	public HashMap<String,HashMap<String,String>> getCommodityList()
@@ -24,7 +25,7 @@ public class CommodityDao {
 		ResultSet rs = null;
 		HashMap<String,String> commodity = null;
 		try{
-			conn = connManager.getConnection("commodity");
+			conn = dbUtil.getConnection(commodityPoolName);
 			ps = conn.prepareStatement(strSql);
 			rs = ps.executeQuery();
 			
@@ -40,8 +41,25 @@ public class CommodityDao {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-		connManager.closeCommodityConnection(rs, ps, conn);
+		this.closeConnection(rs, ps, conn);
 		
 		return commodityMap;
+	}
+	
+	private void closeConnection(ResultSet rs,PreparedStatement ps,Connection conn)
+	{
+		try {
+			if (rs != null) {
+				rs.close();
+				rs = null;
+			}
+			if (ps != null) {
+				ps.close();
+				ps = null;
+			}
+			dbUtil.freeConnection(commodityPoolName, conn);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
 	}
 }

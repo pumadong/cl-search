@@ -11,7 +11,7 @@ import org.apache.solr.client.solrj.impl.HttpSolrServer;
 import org.apache.solr.common.SolrInputDocument;
 
 import com.cl.search.db.CommodityDao;
-import com.cl.search.util.SolrManager;
+import com.cl.search.util.SolrUtil;
 
 public class CreateIndex {
 
@@ -21,7 +21,7 @@ public class CreateIndex {
 	{
 		long begin = System.currentTimeMillis();
 		
-		HttpSolrServer solrConn = SolrManager.getSolrHttpConnect();
+		HttpSolrServer solrConn = SolrUtil.getSolrHttpConnect();
 		
 		HashMap<String,HashMap<String,String>> commodityMap = commodityDao.getCommodityList();
 		
@@ -47,18 +47,14 @@ public class CreateIndex {
 				if(commitNum==1){					
 					try {
 						solrConn.deleteByQuery("*:*");
-					} catch (SolrServerException e) {
-						e.printStackTrace();
-					} catch (IOException e) {
+					} catch (Exception e) {
 						e.printStackTrace();
 					}
 				}
 				try {
 					solrConn.add(docList);
 					solrConn.commit();					
-				} catch (SolrServerException e) {
-					e.printStackTrace();
-				} catch (IOException e) {
+				} catch (Exception e) {
 					e.printStackTrace();
 				}
 				docList.clear();
@@ -71,9 +67,7 @@ public class CreateIndex {
 			if(commitNum==1){					
 				try {
 					solrConn.deleteByQuery("*:*");
-				} catch (SolrServerException e) {
-					e.printStackTrace();
-				} catch (IOException e) {
+				} catch (Exception e) {
 					e.printStackTrace();
 				}
 			}
@@ -81,9 +75,7 @@ public class CreateIndex {
 				solrConn.add(docList);
 				solrConn.commit();
 				solrConn.optimize();
-			} catch (SolrServerException e) {
-				e.printStackTrace();
-			} catch (IOException e) {
+			} catch (Exception e) {
 				e.printStackTrace();
 			}
 			System.out.println("last commit :\t"+commitNum);
