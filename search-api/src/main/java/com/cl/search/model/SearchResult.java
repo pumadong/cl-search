@@ -6,14 +6,13 @@ import java.util.Map;
 
 public class SearchResult implements Serializable {
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 1L;
 
 	private ResultType resultType;
-	private List<Commodity> commodityList;
-	private Map<String,List<Commodity>> commodityMap;	//分词时的结果
+	private List<Commodity> commodityList;	//正常查询时的结果
+	private Map<String,List<Commodity>> commodityMap;	//分词查询时的结果
+	private List<FacetItem> facetItemList;	//对于有多条件过滤的搜索页面需要的Facet内容
+	
 	public ResultType getResultType() {
 		return resultType;
 	}
@@ -31,5 +30,11 @@ public class SearchResult implements Serializable {
 	}
 	public void setCommodityMap(Map<String, List<Commodity>> commodityMap) {
 		this.commodityMap = commodityMap;
-	}	
+	}
+	public List<FacetItem> getFacetItemList() {
+		return facetItemList;
+	}
+	public void setFacetItemList(List<FacetItem> facetItemList) {
+		this.facetItemList = facetItemList;
+	}
 }

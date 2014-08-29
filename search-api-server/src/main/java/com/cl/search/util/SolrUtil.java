@@ -2,15 +2,19 @@ package com.cl.search.util;
 
 import org.apache.solr.client.solrj.impl.BinaryRequestWriter;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 
+@Service
 public class SolrUtil {
 
-	private static String solrUrl = PropertyFile.getProps().getProperty("solrUrl");
+	@Autowired
+	private ConfigUtil configUtil;
 	
-	public static HttpSolrServer getSolrHttpConnect() {
+	public HttpSolrServer getSolrHttpConnect() {
 		
-		HttpSolrServer ss = new HttpSolrServer(solrUrl);
+		HttpSolrServer ss = new HttpSolrServer(configUtil.getCasServerUrl());
 		ss.setSoTimeout(500000);
 		ss.setConnectionTimeout(500000);
 		ss.setDefaultMaxConnectionsPerHost(1000);

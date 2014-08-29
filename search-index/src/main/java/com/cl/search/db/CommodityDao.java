@@ -33,6 +33,7 @@ public class CommodityDao {
 				no = rs.getString("no");
 				commodity = new HashMap<String,String>();
 				commodity.put("no", rs.getString("no"));
+				commodity.put("brand_id", Integer.toString(rs.getInt("brand_id")));
 				commodity.put("name", rs.getString("name"));
 				commodity.put("style_no", rs.getString("style_no"));
 				commodity.put("sale_price", Integer.toString(rs.getInt("sale_price")));

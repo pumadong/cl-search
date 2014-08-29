@@ -11,6 +11,7 @@ import org.apache.solr.client.solrj.impl.HttpSolrServer;
 import org.apache.solr.common.SolrInputDocument;
 
 import com.cl.search.db.CommodityDao;
+import com.cl.search.util.CommonUtil;
 import com.cl.search.util.SolrUtil;
 
 public class CreateIndex {
@@ -35,6 +36,7 @@ public class CreateIndex {
 			HashMap<String,String> commodity = commodityEntry.getValue();
 
 			doc.addField("no", commodity.get("no"));
+			doc.addField("brand_id", commodity.get("brand_id"));
 			doc.addField("name", commodity.get("name"));
 			doc.addField("style_no", commodity.get("style_no"));
 			doc.addField("sale_price", commodity.get("sale_price"));
@@ -58,7 +60,7 @@ public class CreateIndex {
 					e.printStackTrace();
 				}
 				docList.clear();
-				System.out.println("Commit :\t"+commitNum);
+				System.out.println(CommonUtil.getCurrentDatetime() + "，Commit :\t"+commitNum);
 			}
 		}
 		
@@ -78,7 +80,7 @@ public class CreateIndex {
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
-			System.out.println("last commit :\t"+commitNum);
+			System.out.println(CommonUtil.getCurrentDatetime() + "，last commit :\t"+commitNum);
 		}else{
 			try {
 				solrConn.optimize();

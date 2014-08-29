@@ -1,4 +1,4 @@
-cl-privilege
+cl-search
 ==================
 
 基于Solr的搜索系统

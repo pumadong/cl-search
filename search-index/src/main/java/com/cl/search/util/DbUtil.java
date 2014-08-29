@@ -161,7 +161,7 @@ public class DbUtil {
 			name = (String) propNames.nextElement();
 			if (name.endsWith(".url")) {
 				poolName = name.substring(0, name.lastIndexOf("."));
-				System.out.println("数据库连接池: " + poolName + "启动");
+				System.out.println("数据库连接池: " + poolName + " 启动");
 				url = props.getProperty(poolName + ".url");
 				if (url == null) {
 					System.out.println("没有为连接池" + poolName + "指定数据库访问地址");
@@ -288,7 +288,7 @@ public class DbUtil {
 					conn = DriverManager.getConnection(dbConnUrl, dbUserName,
 							dbPassWord);
 				}
-				System.out.println("连接池" + poolName + "创建新的连接");
+				System.out.println("数据库连接池: " + poolName + " 创建新的连接");
 			} catch (SQLException e) {
 				System.out.println("无法创建下列URL的连接: " + dbConnUrl);
 				return null;
