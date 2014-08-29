@@ -23,17 +23,14 @@ public class SearchBaseApiServiceImplTest {
 		ClassPathXmlApplicationContext ctx = new ClassPathXmlApplicationContext("applicationContext-test.xml");  
 		service = (SearchBaseApiServiceImpl)ctx.getBean("searchBaseApiServiceImpl");
 		ctx.close();
-		System.out.println("ok");
 	}
 
 	@Before
 	public void setUp() throws Exception {
-		System.out.println("ok1");
 	}
 
 	@After
 	public void tearDown() throws Exception {
-		System.out.println("ok2");
 	}
 
 	@Test
