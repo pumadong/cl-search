@@ -23,9 +23,9 @@ import com.cl.search.model.FacetValue;
 import com.cl.search.model.ResultType;
 import com.cl.search.model.SearchModel;
 import com.cl.search.model.SearchResult;
-import com.cl.search.util.ConstantUtil;
-import com.cl.search.util.PinyinUtil;
-import com.cl.search.util.SolrUtil;
+import com.cl.search.utils.ConstantUtil;
+import com.cl.search.utils.PinyinUtil;
+import com.cl.search.utils.SolrUtil;
 
 @Service
 public class SearchBaseApiServiceImpl implements ISearchBaseApiService {

@@ -1,4 +1,4 @@
-package com.cl.search.util;
+package com.cl.search.utils;
 
 import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;

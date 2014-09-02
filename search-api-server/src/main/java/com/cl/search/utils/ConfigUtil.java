@@ -1,4 +1,4 @@
-package com.cl.search.util;
+package com.cl.search.utils;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;

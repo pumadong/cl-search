@@ -27,16 +27,16 @@
 	<!-- 开启自动切面代理 -->
 	<aop:aspectj-autoproxy />
 	
+	<!-- 开启注解事务支持 -->	
+	<tx:annotation-driven transaction-manager="transactionManager" proxy-target-class="true" />
+	<bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		 <property name="dataSource" ref="dataSourceSearchCorba"/>
+	</bean>	
+	
 	<context:component-scan base-package="com.cl">
 		<context:exclude-filter type="annotation" expression="org.springframework.stereotype.Controller" />
 	</context:component-scan>
 
-	<!-- 开启注解事务支持 -->	
-	<tx:annotation-driven transaction-manager="transactionManager" proxy-target-class="true" />
-	<bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
-		 <property name="dataSource" ref="dataSourcePrivilegeCorba"/>
-	</bean>	
-	
 	<!-- 定义受环境影响易变的变量 -->
 	<bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
 		<property name="systemPropertiesModeName" value="SYSTEM_PROPERTIES_MODE_OVERRIDE" />
@@ -52,4 +52,24 @@
 			</list>
 		</property>
 	</bean>
+	
+	<!-- 通过BeanFactoryAware，手动从spring容器获取bean -->
+    <bean class="com.cl.search.utils.SpringContextHolder"  lazy-init="false" />
+    
+    <bean id="sqlSessionFactorySearchCorba" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="dataSource" ref="dataSourceSearchCorba" />
+	</bean>
+	<!-- 会自动将basePackage中配置的包路径下的所有带有@Mapper标注的接口生成代理类，实现数据访问 -->
+	<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+		<property name="sqlSessionFactory" ref="sqlSessionFactorySearchCorba" />
+		<property name="basePackage" value="com/cl/search/mapper" />
+	</bean>
+	
+    <bean id="dataSourceSearchCorba" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+        <property name="driverClassName" value="com.mysql.jdbc.Driver"/>
+	    <property name="url" value="jdbc:mysql://localhost:3306/search?useUnicode=true&amp;characterEncoding=utf8&amp;autoReconnect=true"/>
+	    <property name="username" value="root"/>
+	    <property name="password" value="123456"/>
+    </bean>
+    
 </beans>

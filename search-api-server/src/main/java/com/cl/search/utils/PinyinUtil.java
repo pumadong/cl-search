@@ -1,4 +1,4 @@
-package com.cl.search.util;
+package com.cl.search.utils;
 
 import net.sourceforge.pinyin4j.PinyinHelper;
 import net.sourceforge.pinyin4j.format.HanyuPinyinCaseType;

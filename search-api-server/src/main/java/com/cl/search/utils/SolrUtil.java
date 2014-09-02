@@ -1,4 +1,4 @@
-package com.cl.search.util;
+package com.cl.search.utils;
 
 import org.apache.solr.client.solrj.impl.BinaryRequestWriter;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
