@@ -17,7 +17,7 @@
 	<!-- 到这里调用 -->
 	<dubbo:registry protocol="zookeeper" address="${dubbo.registry.address.client}" id="zookeeperClient" />
 
-    <!-- 用dubbo协议在20800端口暴露服务 -->
+    <!-- 用dubbo协议在30020端口暴露服务 -->
     <dubbo:protocol name="dubbo" port="30020" dispather="all" threadpool="cached" threads="5000"/>
     <dubbo:service interface="com.cl.search.api.ISearchBaseApiService" ref="searchBaseApiServiceImpl"
                    version="1.0" registry="zookeeperService" owner="cl-search"/>
